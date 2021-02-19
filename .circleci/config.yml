@@ -11,6 +11,7 @@ jobs:
       - run:
           name: Build front-end
           command: |
+            cd frontend
             npm run build
             exit 1
       - save_cache:
@@ -27,6 +28,7 @@ jobs:
       - run:
           name: Back-end build
           command: |
+             cd backend
              npm run build
              exit 1
       - save_cache:
@@ -38,5 +40,5 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
-      
+
       
