@@ -49,6 +49,8 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - restore_cache:
+          keys: [frontend-test]
       - run:
           name: Install dependencies
           command: |
@@ -59,6 +61,9 @@ jobs:
           command: |
              cd frontend
              npm run test
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-test 
                     
   test-backend:
     docker:
@@ -90,7 +95,7 @@ jobs:
           name: Analyse frontend
           command: |
              cd frontend
-             npm audit fix --audit-level=critical
+             npm audit  --audit-level=critical
 
   scan-backend:
     docker:
@@ -106,7 +111,7 @@ jobs:
           name: Analyse backend
           command: |
              cd backend
-             npm audit fix --audit-level=critical 
+             npm audit  --audit-level=critical 
 
 workflows:
   default:
