@@ -113,6 +113,39 @@ jobs:
              cd backend
              npm audit fix  --audit-level=critical 
 
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --stack-name udapeople-backend-kk1j287dhjppmz37m \
+              --template-file .circleci/files/backend.yml \
+              --stack-name "your back-end stack name with kk1j287dhjppmz37m" \
+              --parameter-overrides ID="kk1j287dhjppmz37m"  
+              exit 1
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --stack-name "your front-end stack name with kk1j287dhjppmz37m" \
+              --parameter-overrides ID="kk1j287dhjppmz37m"  
+              exit 1
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            # Your code here
+            exit 1
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
+      # Here's where you will add some code to rollback on failure 
+
 workflows:
   default:
     jobs:
@@ -126,5 +159,10 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [test-feature-branch]
 
       
