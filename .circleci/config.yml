@@ -153,6 +153,7 @@ jobs:
           command: |
             PUBLIC_DNS=$(aws ec2 describe-instances --region ${AWS_DEFAULT_REGION} --filters Name=tag:Name,Values=backend-* --query "Reservations[*].Instances[0].PublicDnsName" --output text)
             echo ${PUBLIC_DNS}
+            echo ${CIRCLE_WORKFLOW_ID}
             curl -H "Content-Type: text/plain" \
                -H "token: ${CIRCLE_WORKFLOW_ID}" \
                --request PUT \
@@ -182,6 +183,7 @@ jobs:
           command: |
             PUBLIC_DNS=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/public_dns)
             echo ${PUBLIC_DNS}
+            echo ${CIRCLE_WORKFLOW_ID}
             cd .circleci/ansible/
             echo "[all]" > ./inventory
             echo ${PUBLIC_DNS} >> ./inventory
@@ -191,6 +193,7 @@ jobs:
       - run:
           name: Configure server via ansible to deploy the backend
           command: |
+            no_output_timeout: 30m
             printenv >> ./backend/.env
             cd .circleci/ansible/
             ansible-playbook -i ./inventory deploy.yml
