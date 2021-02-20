@@ -193,7 +193,6 @@ jobs:
       - run:
           name: Configure server via ansible to deploy the backend
           command: |
-            no_output_timeout: 30m
             printenv >> ./backend/.env
             cd .circleci/ansible/
             ansible-playbook -i ./inventory deploy.yml
