@@ -258,7 +258,6 @@ jobs:
               return 1
             fi
  
-
   delete-old-infrastructure:
     docker:
       - image: amazon/aws-cli
@@ -287,8 +286,7 @@ jobs:
               echo deleting stack udapeople-backend-${OLD_CIRCLE_WORKFLOW_ID}
               aws cloudformation delete-stack --stack-name udapeople-backend-${OLD_CIRCLE_WORKFLOW_ID}
             fi
-      - destroy-aws-resource
-      - slack/status
+
 workflows:
  # default:
  #   jobs:
