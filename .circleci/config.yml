@@ -217,7 +217,7 @@ jobs:
       #    paths:
       #      - project/.circleci/ansible/inventory.txt
       #  Here's where you will add some code to rollback on failure 
-      - destroy-aws-resource
+      #- destroy-aws-resource
 
   deploy-backend:
     docker:
@@ -251,8 +251,8 @@ jobs:
             printenv >> ./backend/.env
             cd .circleci/ansible/
             ansible-playbook -i ./inventory deploy.yml
-      - revert-migration
-      - destroy-aws-resource
+     # - revert-migration
+     # - destroy-aws-resource
 
   deploy-frontend:
     docker:
@@ -280,7 +280,7 @@ jobs:
           name: Copy built frontend files to the S3 bucket
           command: |
             aws s3 cp ./frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
-      - destroy-aws-resource
+      #- destroy-aws-resource
 
   smoke-test:
     docker:
@@ -317,8 +317,8 @@ jobs:
               return 1
             fi
 
-      - revert-migration
-      - destroy-aws-resource
+      #- revert-migration
+      #- destroy-aws-resource
  
   delete-old-infrastructure:
     docker:
@@ -376,24 +376,24 @@ workflows:
           filters:
             branches:
               only: master
-      - deploy-frontend:
-          requires:
-            - deploy-backend
-          filters:
-            branches:
-              only: master
-      - smoke-test:
-          requires:
-            - deploy-frontend
-          filters:
-            branches:
-              only: master
-      - delete-old-infrastructure:
-          requires:
-            - smoke-test
-          filters:
-            branches:
-              only: master
+    #  - deploy-frontend:
+    #      requires:
+    #        - deploy-backend
+    #      filters:
+    #        branches:
+    #          only: master
+    #  - smoke-test:
+    #      requires:
+    #        - deploy-frontend
+    #      filters:
+    #        branches:
+    #          only: master
+    #  - delete-old-infrastructure:
+    #      requires:
+    #        - smoke-test
+    #      filters:
+    #        branches:
+    #          only: master
 
 
       
