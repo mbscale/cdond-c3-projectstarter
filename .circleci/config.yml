@@ -336,9 +336,9 @@ jobs:
             aws cloudformation deploy \
               --stack-name udapeople-cloudfront \
               --template-file .circleci/files/cloudfront.yml \
-              --parameters ParameterKey=WorkflowID ParameterValue= ${CIRCLE_WORKFLOW_ID} \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}" \
-              --region ${AWS_DEFAULT_REGION}
+              --parameters ParameterKey=WorkflowID, ParameterValue= ${CIRCLE_WORKFLOW_ID} \ 
+              --region ${AWS_DEFAULT_REGION} \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
               
             echo "Delete old infrastructure"
             if [ -n "${OLD_CIRCLE_WORKFLOW_ID}" ] && [[ "${STACKS[@]}" =~ "${OLD_CIRCLE_WORKFLOW_ID}" ]]
