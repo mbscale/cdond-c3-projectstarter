@@ -1,0 +1,1 @@
+http://ec2-34-217-65-127.us-west-2.compute.amazonaws.com:3030/api/status

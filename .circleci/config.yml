@@ -190,16 +190,6 @@ jobs:
               --template-file .circleci/files/frontend.yml \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"  
-      
-              
-      #- run:
-      #    name: Add back-end ip to ansible inventory
-      #    command: |
-      #      aws ec2 describe-instances \
-      #        --query "Reservations[*].Instances[*].PublicIpAddress" \
-      #        --filters Name=tag:Name,Values=backend-* \
-      #        --output text >> ./.circleci/ansible/inventory
-      #      cat ./.circleci/ansible/inventory
             
       - run:
           name: Get and save public DNS of EC2 instance to https://memstash.io/
@@ -212,12 +202,9 @@ jobs:
                --request PUT \
                --data ${PUBLIC_DNS} \
                https://api.memstash.io/values/public_dns
-      #- persist_to_workspace:
-      #    root: ~/
-      #    paths:
-      #      - project/.circleci/ansible/inventory.txt
+
       #  Here's where you will add some code to rollback on failure 
-      #- destroy-aws-resource
+      - destroy-aws-resource
 
   deploy-backend:
     docker:
@@ -251,8 +238,8 @@ jobs:
             printenv >> ./backend/.env
             cd .circleci/ansible/
             ansible-playbook -i ./inventory deploy.yml
-     # - revert-migration
-     # - destroy-aws-resource
+      - revert-migration
+      - destroy-aws-resource
 
   deploy-frontend:
     docker:
@@ -280,7 +267,7 @@ jobs:
           name: Copy built frontend files to the S3 bucket
           command: |
             aws s3 cp ./frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
-      #- destroy-aws-resource
+      - destroy-aws-resource
 
   smoke-test:
     docker:
@@ -295,16 +282,16 @@ jobs:
             apk add --no-cache --update ansible
             apk add --no-cache openssh-client
             pip3 install awscli
-    #  - run:
-    #      name: Smoke test on frontend
-    #      command: |
-    #        URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website.us-west-2.amazonaws.com/#/employees"
-    #        if curl -s ${URL} | grep "Welcome"
-    #        then
-    #          return 0
-    #        else
-    #          return 1
-    #        fi
+      - run:
+          name: Smoke test on frontend
+          command: |
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website.us-west-2.amazonaws.com/#/employees"
+            if curl -s ${URL} | grep "Welcome"
+            then
+              return 0
+            else
+              return 1
+            fi
       - run:
           name: Smoke test on backend
           command: |
@@ -317,8 +304,8 @@ jobs:
               return 1
             fi
 
-      #- revert-migration
-      #- destroy-aws-resource
+      - revert-migration
+      - destroy-aws-resource
  
   delete-old-infrastructure:
     docker:
@@ -348,44 +335,44 @@ jobs:
                aws cloudformation delete-stack --stack-name udapeople-frontend-${OLD_CIRCLE_WORKFLOW_ID}
               echo deleting stack udapeople-backend-${OLD_CIRCLE_WORKFLOW_ID}
                aws cloudformation delete-stack --stack-name udapeople-backend-${OLD_CIRCLE_WORKFLOW_ID}
-             fi
-     # - destroy-aws-resource
+            fi
+      - destroy-aws-resource
 workflows:
- # default:
- #   jobs:
- #     - build-frontend
- #     - build-backend
- #     - test-frontend:
- #         requires: [build-frontend]
- #     - test-backend:
- #         requires: [build-backend]
- #     - scan-backend:
- #         requires: [build-backend]
- #     - scan-frontend:
- #         requires: [build-frontend]
- #     - deploy-infrastructure
- #         requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+  default:
+    jobs:
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
   deploy:
     jobs:
-    #  - deploy-infrastructure:
-    #      filters:
-    #        branches:
-    #          only: master
-    #  - deploy-backend:
-    #      requires:
-    #        - deploy-infrastructure
-    #      filters:
-    #        branches:
-    #          only: master
-    #  - deploy-frontend:
-    #      requires:
-    #        - deploy-backend
-    #      filters:
-    #        branches:
-    #          only: master
+      - deploy-infrastructure:
+          filters:
+            branches:
+              only: master
+      - deploy-backend:
+          requires:
+            - deploy-infrastructure
+          filters:
+            branches:
+              only: master
+      - deploy-frontend:
+          requires:
+            - deploy-backend
+          filters:
+            branches:
+              only: master
       - smoke-test:
-    #      requires:
-    #        - deploy-frontend
+          requires:
+            - deploy-frontend
           filters:
             branches:
               only: master
