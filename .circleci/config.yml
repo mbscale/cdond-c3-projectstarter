@@ -304,7 +304,7 @@ jobs:
               return 1
             fi
 
-      #- revert-migration
+      #-  revert-migration
       #- destroy-aws-resource
  
   delete-old-infrastructure:
@@ -338,18 +338,18 @@ jobs:
             fi
       #- destroy-aws-resource
 workflows:
-  default:
-    jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
+ # default:
+    #jobs:
+    #  - build-frontend
+    #  - build-backend
+    #  - test-frontend:
+    #      requires: [build-frontend]
+    #  - test-backend:
+    #      requires: [build-backend]
+    #  - scan-backend:
+    #      requires: [build-backend]
+    #  - scan-frontend:
+    #      requires: [build-frontend]
      # - deploy-infrastructure:
      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
   deploy:
