@@ -295,7 +295,7 @@ jobs:
       - run:
           name: Smoke test on backend
           command: |
-            PUBLIC_DNS=$(curl -H "token: d64df145-416c-44a8-b264-3a61d151401d" --request GET https://api.memstash.io/values/public_dns)
+            PUBLIC_DNS=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/public_dns)
             echo ${PUBLIC_DNS}
             if curl -s "http://${PUBLIC_DNS}:3030/api/status" | grep "ok"
             then
@@ -304,8 +304,8 @@ jobs:
               return 1
             fi
 
-      - revert-migration
-      - destroy-aws-resource
+      #- revert-migration
+      #- destroy-aws-resource
  
   delete-old-infrastructure:
     docker:
@@ -336,7 +336,7 @@ jobs:
               echo deleting stack udapeople-backend-${OLD_CIRCLE_WORKFLOW_ID}
                aws cloudformation delete-stack --stack-name udapeople-backend-${OLD_CIRCLE_WORKFLOW_ID}
             fi
-      - destroy-aws-resource
+      #- destroy-aws-resource
 workflows:
   default:
     jobs:
