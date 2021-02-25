@@ -204,7 +204,7 @@ jobs:
                https://api.memstash.io/values/public_dns
 
       #  Here's where you will add some code to rollback on failure 
-     # - destroy-aws-resource
+      - destroy-aws-resource
 
   deploy-backend:
     docker:
@@ -238,8 +238,8 @@ jobs:
             printenv >> ./backend/.env
             cd .circleci/ansible/
             ansible-playbook -i ./inventory deploy.yml
-     # - revert-migration
-     # - destroy-aws-resource
+      - revert-migration
+      - destroy-aws-resource
 
   deploy-frontend:
     docker:
@@ -267,7 +267,7 @@ jobs:
           name: Copy built frontend files to the S3 bucket
           command: |
             aws s3 cp ./frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
-      #- destroy-aws-resource
+      - destroy-aws-resource
 
   smoke-test:
     docker:
@@ -304,8 +304,8 @@ jobs:
               return 1
             fi
 
-      #- revert-migration
-      #- destroy-aws-resource
+      - revert-migration
+      - destroy-aws-resource
  
   delete-old-infrastructure:
     docker:
@@ -336,22 +336,22 @@ jobs:
               echo deleting stack udapeople-backend-${OLD_CIRCLE_WORKFLOW_ID}
                aws cloudformation delete-stack --stack-name udapeople-backend-${OLD_CIRCLE_WORKFLOW_ID}
             fi
-      #- destroy-aws-resource
+      - destroy-aws-resource
 workflows:
- # default:
-    #jobs:
-    #  - build-frontend
-    #  - build-backend
-    #  - test-frontend:
-    #      requires: [build-frontend]
-    #  - test-backend:
-    #      requires: [build-backend]
-    #  - scan-backend:
-    #      requires: [build-backend]
-    #  - scan-frontend:
-    #      requires: [build-frontend]
-    #  - deploy-infrastructure:
-     #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+  default:
+    jobs:
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
   deploy:
     jobs:
       - deploy-infrastructure:
@@ -376,12 +376,12 @@ workflows:
           filters:
             branches:
               only: master
-      #- delete-old-infrastructure
-      #    requires:
-       #     - smoke-test
-      #    filters:
-       #     branches:
-        #      only: master
+      - delete-old-infrastructure:
+           requires:
+            - smoke-test
+           filters:
+            branches:
+             only: master
 
 
       
